@@ -24,10 +24,10 @@ export default class KnuckleGameArea extends InteractableArea {
   public get isActive(): boolean {
     return this._occupants.length > 0;
   }
-  
+
   /**
    * Creates a new KnuckleGameArea
-   * 
+   *
    * @param knuckleGameAreaModel model containing this area's current topic and its ID
    * @param coordinates  the bounding box that defines this conversation area
    * @param townEmitter a broadcast emitter that can be used to emit updates to players
@@ -39,13 +39,13 @@ export default class KnuckleGameArea extends InteractableArea {
   ) {
     super(id, coordinates, townEmitter);
   }
-  
+
   /**
    * Removes a player from this game area.
-   * 
+   *
    * Extends the base behavior of InteractableArea to set the topic of this ConversationArea to undefined and
    * emit an update to other players in the town when the last player leaves.
-   * 
+   *
    * @param player
    */
   public remove(player: Player) {
@@ -57,9 +57,9 @@ export default class KnuckleGameArea extends InteractableArea {
 
   /**
    * Adds a player to the tuple containing the currently playing players in this game area.
-   * 
+   *
    * @param player
-   * 
+   *
    * @returns true if the player was added to the game area, false if the player was already in the game area
    */
   public addPlayer(player: Player): boolean {
@@ -74,15 +74,14 @@ export default class KnuckleGameArea extends InteractableArea {
    * Rolls a dice for a given player and stores the result in associated player's die.
    *
    * @param player
-   * 
+   *
    * @returns the value of the die rolled
    */
   public rollDie(): number {
     const die = Math.floor(Math.random() * 6) + 1;
     if (this.isItPlayerOneTurn) {
       this.die1 = die;
-    }
-    else {
+    } else {
       this.die2 = die;
     }
     return die;
@@ -90,10 +89,10 @@ export default class KnuckleGameArea extends InteractableArea {
 
   /**
    * Allows a player to place a die on the board, clearing their die value.
-   * 
+   *
    * @param row
    * @param column
-   * 
+   *
    * @returns true if the player was able to place their die on the board, false if the player was not able to place their die on the board
    */
   public placeDie(row: number, column: number): boolean {
@@ -103,8 +102,7 @@ export default class KnuckleGameArea extends InteractableArea {
         this.die1 = 0;
         return true;
       }
-    }
-    else {
+    } else {
       if (this.board2[row][column] === 0) {
         this.board2[row][column] = this.die2;
         this.die2 = 0;
@@ -118,7 +116,7 @@ export default class KnuckleGameArea extends InteractableArea {
    * Starts a game if:
    * 1. There are two players in occupants array
    * 2. The game is not already running
-   * 
+   *
    * @returns true if the game was started, false if the game was not started
    */
   public startGame(): boolean {
@@ -137,5 +135,4 @@ export default class KnuckleGameArea extends InteractableArea {
     }
     return board;
   }
-  
 }

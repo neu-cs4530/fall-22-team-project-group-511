@@ -12,13 +12,20 @@ export default class KnuckleGameArea extends InteractableArea {
   public toModel(): Interactable {
     throw new Error('Method not implemented.');
   }
+
   public board1: number[][] = [];
+
   public board2: number[][] = [];
+
   public players: Player[] = [];
-  public gameRunning: boolean = false;
-  public die1: number = 0;
-  public die2: number = 0;
-  public isItPlayerOneTurn: boolean = true;
+
+  public gameRunning = false;
+
+  public die1 = 0;
+
+  public die2 = 0;
+
+  public isItPlayerOneTurn = true;
 
   /** The area is "active" when there are players inside of it  */
   public get isActive(): boolean {
@@ -102,12 +109,10 @@ export default class KnuckleGameArea extends InteractableArea {
         this.die1 = 0;
         return true;
       }
-    } else {
-      if (this.board2[row][column] === 0) {
-        this.board2[row][column] = this.die2;
-        this.die2 = 0;
-        return true;
-      }
+    } else if (this.board2[row][column] === 0) {
+      this.board2[row][column] = this.die2;
+      this.die2 = 0;
+      return true;
     }
     return false;
   }
@@ -128,6 +133,7 @@ export default class KnuckleGameArea extends InteractableArea {
     }
     return false;
   }
+
   createBoard(): number[][] {
     const board: number[][] = [];
     for (let i = 0; i < 3; i++) {

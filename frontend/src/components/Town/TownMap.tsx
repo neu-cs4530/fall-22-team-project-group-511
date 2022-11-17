@@ -1,8 +1,8 @@
-import React from 'react';
 import Phaser from 'phaser';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import useTownController from '../../hooks/useTownController';
 import SocialSidebar from '../SocialSidebar/SocialSidebar';
+import KnuckleModal from './interactables/knuckleModal';
 import NewConversationModal from './interactables/NewCoversationModal';
 import TownGameScene from './TownGameScene';
 
@@ -48,6 +48,7 @@ export default function TownMap(): JSX.Element {
   return (
     <div id='app-container'>
       <NewConversationModal />
+      <KnuckleModal />
       <div id='map-container' />
       <div id='social-container'>
         <SocialSidebar />

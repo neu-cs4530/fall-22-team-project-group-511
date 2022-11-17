@@ -1,8 +1,9 @@
 import TownController from '../../classes/TownController';
+import KnuckleModal from './interactables/knuckleModal';
 import TownGameScene from './TownGameScene';
 
 //TODO is there not some way to figure this out from generic types/supertypes?
-export type KnownInteractableTypes = 'conversationArea' | 'viewingArea' | 'transporter';
+export type KnownInteractableTypes = 'conversationArea' | 'viewingArea' | 'transporter' | 'gameArea';
 
 /**
  * A base abstract class for representing an "interactable" in the Phaser game world.
@@ -87,16 +88,16 @@ export default abstract class Interactable extends Phaser.GameObjects.Sprite {
   /**
    * Invoked when the player begins to overlap with this interactable
    */
-  overlap(): void {}
+  overlap(): void { }
 
   /**
    * Invoked when the player no longer overlaps with this interactable
    */
-  overlapExit(): void {}
+  overlapExit(): void { }
 
   /**
    * Invoked when the player is overlapping with this interactable and first
    * presses the spacebar
    */
-  interact(): void {}
+  interact(): void { }
 }

@@ -1,4 +1,5 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
+import { TrustProductsEvaluationsContext } from 'twilio/lib/rest/trusthub/v1/trustProducts/trustProductsEvaluations';
 import Player from '../lib/Player';
 import {
   BoundingBox,
@@ -13,19 +14,21 @@ export default class KnuckleGameArea extends InteractableArea {
     throw new Error('Method not implemented.');
   }
 
-  public board1: number[][] = [];
+  public gameRunning: boolean;
 
-  public board2: number[][] = [];
+  public spectators: Player[];
 
-  public players: Player[] = [];
+  public board1: number[][];
 
-  public gameRunning = false;
+  public board2: number[][];
 
-  public die1 = 0;
+  public player1?: Player;
 
-  public die2 = 0;
+  public player2?: Player;
 
-  public isItPlayerOneTurn = true;
+  public dieRoll?: number;
+
+  public isItPlayerOneTurn: boolean;
 
   /** The area is "active" when there are players inside of it  */
   public get isActive(): boolean {
@@ -45,6 +48,11 @@ export default class KnuckleGameArea extends InteractableArea {
     townEmitter: TownEmitter,
   ) {
     super(id, coordinates, townEmitter);
+    this.gameRunning = false;
+    this.spectators = [];
+    this.board1 = this.createBoard();
+    this.board2 = this.createBoard();
+    this.isItPlayerOneTurn = true;
   }
 
   /**
@@ -57,7 +65,21 @@ export default class KnuckleGameArea extends InteractableArea {
    */
   public remove(player: Player) {
     super.remove(player);
-    if (this._occupants.length === 0) {
+
+    if (this.player1?.id === player.id) {
+      this.player1 = undefined;
+    } else if (this.player2?.id === player.id) {
+      this.player2 = undefined;
+    } else {
+      this.spectators.filter(p => p.id !== player.id);
+    }
+
+    if (this.player1 === undefined || this.player2 === undefined) {
+      this.gameRunning = false;
+      this.board1 = this.createBoard();
+      this.board2 = this.createBoard();
+      this.dieRoll = undefined;
+      this.isItPlayerOneTurn = true;
       this._emitAreaChanged();
     }
   }
@@ -66,72 +88,102 @@ export default class KnuckleGameArea extends InteractableArea {
    * Adds a player to the tuple containing the currently playing players in this game area.
    *
    * @param player
-   *
-   * @returns true if the player was added to the game area, false if the player was already in the game area
    */
-  public addPlayer(player: Player): boolean {
-    if (this._occupants.includes(player) && this._occupants.length < 2) {
-      this.players.push(player);
-      return true;
+  public add(player: Player): void {
+    super.add(player);
+    if (this.player1 === undefined) {
+      this.player1 = player;
+    } else if (this.player2 === undefined) {
+      this.player2 = player;
+    } else {
+      this.spectators.push(player);
     }
-    return false;
   }
 
   /**
-   * Rolls a dice for a given player and stores the result in associated player's die.
+   * Generates a random number between 1 and 6 and stores it in dieRoll.
+   *
+   * Returns early if the game is not running
+   */
+  public rollDie(player: Player): void {
+    if (!this.gameRunning || this.player1 === undefined || this.player2 === undefined) {
+      return;
+    }
+    if (this.isItPlayerOneTurn && player.id !== this.player1.id) {
+      return;
+    }
+    if (!this.isItPlayerOneTurn && player.id !== this.player2.id) {
+      return;
+    }
+    const roll: number = Math.floor(Math.random() * 6) + 1;
+    this.dieRoll = roll;
+  }
+
+  /**
+   * Allows a player to place a die on the board
    *
    * @param player
-   *
-   * @returns the value of the die rolled
-   */
-  public rollDie(): number {
-    const die = Math.floor(Math.random() * 6) + 1;
-    if (this.isItPlayerOneTurn) {
-      this.die1 = die;
-    } else {
-      this.die2 = die;
-    }
-    return die;
-  }
-
-  /**
-   * Allows a player to place a die on the board, clearing their die value.
-   *
    * @param row
-   * @param column
    *
    * @returns true if the player was able to place their die on the board, false if the player was not able to place their die on the board
    */
-  public placeDie(row: number, column: number): boolean {
-    if (this.isItPlayerOneTurn) {
-      if (this.board1[row][column] === 0) {
-        this.board1[row][column] = this.die1;
-        this.die1 = 0;
-        return true;
-      }
-    } else if (this.board2[row][column] === 0) {
-      this.board2[row][column] = this.die2;
-      this.die2 = 0;
-      return true;
+  public placeDie(player: Player, row: number): boolean {
+    if (!this.gameRunning || this.player1 === undefined || this.player2 === undefined) {
+      return false;
     }
-    return false;
+    if (this.isItPlayerOneTurn && player.id !== this.player1.id) {
+      return false;
+    }
+    if (!this.isItPlayerOneTurn && player.id !== this.player2.id) {
+      return false;
+    }
+    if (this.dieRoll === undefined) {
+      return false;
+    }
+
+    if (this.isItPlayerOneTurn) {
+      const targetCol: number = this.board1[row].findIndex(e => e === 0);
+      if (targetCol !== -1) {
+        this.board1[row][targetCol] = this.dieRoll;
+        while (this.board2[row].findIndex(e => e === this.dieRoll) !== -1) {
+          const colToZero: number = this.board2[row].findIndex(e => e === this.dieRoll);
+          this.board2[row][colToZero] = 0;
+        }
+        this.isItPlayerOneTurn = false;
+      } else {
+        return false;
+      }
+    } else {
+      const targetCol: number = this.board2[row].findIndex(e => e === 0);
+      if (targetCol !== -1) {
+        this.board2[row][targetCol] = this.dieRoll;
+        while (this.board1[row].findIndex(e => e === this.dieRoll) !== -1) {
+          const colToZero: number = this.board1[row].findIndex(e => e === this.dieRoll);
+          this.board1[row][colToZero] = 0;
+        }
+        this.isItPlayerOneTurn = true;
+      } else {
+        return false;
+      }
+    }
+
+    this.dieRoll = undefined;
+    return true;
   }
 
   /**
    * Starts a game if:
-   * 1. There are two players in occupants array
+   * 1. player1 and player2 are defined
    * 2. The game is not already running
    *
    * @returns true if the game was started, false if the game was not started
    */
   public startGame(): boolean {
-    if (this._occupants.length === 2 && !this.gameRunning) {
-      this.gameRunning = true;
-      this.board1 = this.createBoard();
-      this.board2 = this.createBoard();
+    if (this.player1 === undefined || this.player2 === undefined || this.gameRunning) {
+      return false;
+    } else {
       return true;
     }
-    return false;
   }
 
   createBoard(): number[][] {

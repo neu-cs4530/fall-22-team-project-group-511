@@ -12,15 +12,22 @@ export default function DieColumn({
 }): JSX.Element {
   const toast = useToast();
 
+  const [die1, setDie1] = useState(0);
+  const [die2, setDie2] = useState(0);
+  const [die3, setDie3] = useState(0);
+
   function columnPressedEvent() {
     toast({
       title: 'Column ' + columnNum + ' pressed',
     });
+    if (die1 == 0) {
+      setDie1(4);
+    } else if (die2 == 0) {
+      setDie2(4);
+    } else if (die3 == 0) {
+      setDie3(4);
+    }
   }
-
-  const [die1, setDie1] = useState(0);
-  const [die2, setDie2] = useState(0);
-  const [die3, setDie3] = useState(0);
 
   const [columnScore, setColumnScore] = useState(0);
 
@@ -40,13 +47,13 @@ export default function DieColumn({
           <></>
         )}
         <Grid item>
-          <DieComponent dieNumber={die1} />
+          <DieComponent dieNumber={isPlayer ? die1 : die3} />
         </Grid>
         <Grid item>
           <DieComponent dieNumber={die2} />
         </Grid>
         <Grid item>
-          <DieComponent dieNumber={die3} />
+          <DieComponent dieNumber={isPlayer ? die3 : die1} />
         </Grid>
         {!isPlayer ? (
           <Grid item>

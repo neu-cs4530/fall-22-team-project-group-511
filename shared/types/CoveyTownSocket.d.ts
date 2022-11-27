@@ -65,12 +65,12 @@ export interface BoundingBox {
 export interface KnuckleGameArea {
   id: string;
   occupantsByID: string[];
-  board1: Number[][];
-  board2: Number[][];
+  board1: number[][];
+  board2: number[][];
   players: Player[];
   gameRunning: boolean;
-  die1: Number;
-  die2: Number;
+  die1: number;
+  die2: number;
   isItPlayerOneTurn: boolean;
 }
 

@@ -15,11 +15,13 @@ import {
   PlayerLocation,
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
+  KnuckleGameArea as GameModel,
 } from '../types/CoveyTownSocket';
-import { isConversationArea, isViewingArea } from '../types/TypeUtils';
+import { isConversationArea, isViewingArea, isGameArea } from '../types/TypeUtils';
 import ConversationAreaController from './ConversationAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
+import GameAreaController from './GameAreaController';
 
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
 
@@ -69,6 +71,11 @@ export type TownEvents = {
    * the town controller's record of viewing areas.
    */
   viewingAreasChanged: (newViewingAreas: ViewingAreaController[]) => void;
+  /**
+   * An event that indicates that the set of game areas has changed. This event is emitted after updating
+   * the town controller's record of game areas.
+   */
+  gameAreasChanged: (newGameAreas: GameAreaController[]) => void;
   /**
    * An event that indicates that a new chat message has been received, which is the parameter passed to the listener
    */
@@ -127,11 +134,16 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   private _playersInternal: PlayerController[] = [];
 
   /**
-   * The current list of conversation areas in the twon. Adding or removing conversation areas might
+   * The current list of conversation areas in the town. Adding or removing conversation areas might
    * replace the array with a new one; clients should take note not to retain stale references.
    */
   private _conversationAreasInternal: ConversationAreaController[] = [];
 
+  /**
+   * The current list of game areas in the town. Adding or removing game areas might
+   * replace the array with a new one; clients should take note not to retain stale references.
+   */
+  private _gameAreasInternal: GameAreaController[] = [];
   /**
    * The friendly name of the current town, set only once this TownController is connected to the townsService
    */
@@ -309,6 +321,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     this.emit('viewingAreasChanged', newViewingAreas);
   }
 
+  public get gameAreas() {
+    return this._gameAreasInternal;
+  }
+
+  private set _gameAreas(newGameAreas: GameAreaController[]) {
+    this._gameAreasInternal = newGameAreas;
+    this.emit('gameAreasChanged', newGameAreas);
+  }
+
   /**
    * Begin interacting with an interactable object. Emits an event to all listeners.
    * @param interactedObj
@@ -427,6 +448,10 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
           eachArea => eachArea.id === interactable.id,
         );
         updatedViewingArea?.updateFrom(interactable);
+      }
+      //otherwise, it must be a game area, which is handled by the game area controller
+      else {
+        //TODO: handle game area updates
       }
     });
   }

@@ -11,6 +11,8 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
+import DieBoard from './DieBoard';
+import DieComponent from './DieComponent';
 
 const WIDTH = 100;
 const HEIGHT = 100;
@@ -44,6 +46,13 @@ export default function KnuckleModal(): JSX.Element {
     setIsOpen(false);
   };
 
+  const [rolledDie, setRolledDie] = useState(0);
+
+  const rollDie = () => {
+    const rand = Math.floor(Math.random() * 6) + 1;
+    setRolledDie(rand);
+  };
+
   return (
     <>
       <button onClick={onOpen}>Open Modal</button>
@@ -53,14 +62,18 @@ export default function KnuckleModal(): JSX.Element {
           <ModalHeader>Knuckle Bones</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <h1>Body</h1>
+            <div>
+              <DieBoard isPlayer={false} />
+              <DieBoard isPlayer={true} />
+              <h1>Rolled Die:</h1>
+              <DieComponent dieNumber={rolledDie} />
+            </div>
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={onClose}>
-              Close
+            <Button colorScheme='blue' mr={3} onClick={rollDie}>
+              Roll Die
             </Button>
-            <Button variant='ghost'>Secondary Action</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

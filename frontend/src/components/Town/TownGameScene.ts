@@ -4,6 +4,7 @@ import TownController from '../../classes/TownController';
 import { PlayerLocation } from '../../types/CoveyTownSocket';
 import { Callback } from '../VideoCall/VideoFrontend/types';
 import Interactable from './Interactable';
+import GameArea from './interactables/knuckleModal'
 import ConversationArea from './interactables/ConversationArea';
 import Transporter from './interactables/Transporter';
 import ViewingArea from './interactables/ViewingArea';
@@ -17,7 +18,10 @@ function interactableTypeForObjectType(type: string): any {
     return Transporter;
   } else if (type == 'ViewingArea') {
     return ViewingArea;
-  } else {
+  } else if (type == 'GameArea') {
+    return GameArea;
+  }
+  else {
     throw new Error(`Unknown object type: ${type}`);
   }
 }
@@ -119,7 +123,7 @@ export default class TownGameScene extends Phaser.Scene {
       '16_Grocery_store_32x32',
       this._resourcePathPrefix + '/assets/tilesets/16_Grocery_store_32x32.png',
     );
-    this.load.tilemapTiledJSON('map', this._resourcePathPrefix + '/assets/tilemaps/indoors.json');
+    this.load.tilemapTiledJSON('map', this._resourcePathPrefix + '/assets/tilemaps/indoors2.json');
     this.load.atlas(
       'atlas',
       this._resourcePathPrefix + '/assets/atlas/atlas.png',

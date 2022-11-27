@@ -10,10 +10,6 @@ import {
 import InteractableArea from './InteractableArea';
 
 export default class KnuckleGameArea extends InteractableArea {
-  public toModel(): Interactable {
-    throw new Error('Method not implemented.');
-  }
-
   public gameRunning: boolean;
 
   public spectators: Player[];
@@ -55,6 +51,20 @@ export default class KnuckleGameArea extends InteractableArea {
     this.isItPlayerOneTurn = true;
   }
 
+  public toModel(): KnuckleGameAreaModel {
+    return {
+      id: this.id,
+      occupantsByID: this.occupantsByID,
+      gameRunning: this.gameRunning,
+      spectators: this.spectators,
+      board1: this.board1,
+      board2: this.board2,
+      player1: this.player1,
+      player2: this.player2,
+      isItPlayerOneTurn: this.isItPlayerOneTurn,
+    };
+  }
+
   /**
    * Removes a player from this game area.
    *
@@ -74,7 +84,7 @@ export default class KnuckleGameArea extends InteractableArea {
       this.spectators.filter(p => p.id !== player.id);
     }
 
-    if (this.player1 === undefined || this.player2 === undefined) {
+    if (this.gameRunning && (this.player1 === undefined || this.player2 === undefined)) {
       this.gameRunning = false;
       this.board1 = this.createBoard();
       this.board2 = this.createBoard();
@@ -178,11 +188,11 @@ export default class KnuckleGameArea extends InteractableArea {
    *
    * @returns true if the game was started, false if the game was not started
    */
-  public startGame(): boolean {
+  public startGame(): void {
     if (this.player1 === undefined || this.player2 === undefined || this.gameRunning) {
-      return false;
+      return;
     } else {
-      return true;
+      this.gameRunning = true;
     }
   }
 

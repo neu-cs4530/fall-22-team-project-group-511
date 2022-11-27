@@ -7,6 +7,14 @@ import ThreeDie from './images/dice_three.png';
 import TwoDie from './images/dice_two.png';
 
 export default function DieComponent({ dieNumber }: { dieNumber: number }): JSX.Element {
+  const dieStyle = {
+    height: '40px',
+    width: '40px',
+    border: '5px solid green',
+    padding: '5px',
+    margin: '5px',
+  };
+
   function renderDie(num: number) {
     switch (num) {
       case 1:
@@ -24,5 +32,5 @@ export default function DieComponent({ dieNumber }: { dieNumber: number }): JSX.
     }
   }
 
-  return <div>{renderDie(dieNumber)}</div>;
+  return <div style={dieStyle}>{renderDie(dieNumber)}</div>;
 }

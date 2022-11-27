@@ -46,6 +46,13 @@ export default function KnuckleModal(): JSX.Element {
     setIsOpen(false);
   };
 
+  const [rolledDie, setRolledDie] = useState(0);
+
+  const rollDie = () => {
+    const rand = Math.floor(Math.random() * 6) + 1;
+    setRolledDie(rand);
+  };
+
   return (
     <>
       <button onClick={onOpen}>Open Modal</button>
@@ -56,17 +63,17 @@ export default function KnuckleModal(): JSX.Element {
           <ModalCloseButton />
           <ModalBody>
             <div>
-              <DieBoard />
-              <DieComponent dieNumber={4} />
-              <DieBoard />
+              <DieBoard isPlayer={false} />
+              <DieBoard isPlayer={true} />
+              <h1>Rolled Die:</h1>
+              <DieComponent dieNumber={rolledDie} />
             </div>
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={onClose}>
-              Close
+            <Button colorScheme='blue' mr={3} onClick={rollDie}>
+              Roll Die
             </Button>
-            <Button variant='ghost'>Secondary Action</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

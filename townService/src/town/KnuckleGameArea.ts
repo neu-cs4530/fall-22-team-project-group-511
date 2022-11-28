@@ -31,6 +31,10 @@ export default class KnuckleGameArea extends InteractableArea {
     return this._occupants.length > 0;
   }
 
+  public get spectatorsByID(): string[] {
+    return this.spectators.map(player => player.id);
+  }
+
   /**
    * Creates a new KnuckleGameArea
    *
@@ -56,11 +60,11 @@ export default class KnuckleGameArea extends InteractableArea {
       id: this.id,
       occupantsByID: this.occupantsByID,
       gameRunning: this.gameRunning,
-      spectators: this.spectators,
+      spectatorsByID: this.spectatorsByID,
       board1: this.board1,
       board2: this.board2,
-      player1: this.player1,
-      player2: this.player2,
+      player1ID: this.player1?.id,
+      player2ID: this.player2?.id,
       isItPlayerOneTurn: this.isItPlayerOneTurn,
     };
   }

@@ -66,11 +66,11 @@ export interface KnuckleGameArea {
   id: string;
   occupantsByID: string[];
   gameRunning: boolean;
-  spectators: Player[];
+  spectatorsByID: string[];
   board1: number[][];
   board2: number[][];
-  player1?: Player;
-  player2?: Player;
+  player1ID?: string;
+  player2ID?: string;
   dieRoll?: number;
   isItPlayerOneTurn: boolean;
 }

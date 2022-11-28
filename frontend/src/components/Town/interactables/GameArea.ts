@@ -3,14 +3,12 @@ import TownController from '../../../classes/TownController';
 import { BoundingBox } from '../../../types/CoveyTownSocket';
 import Interactable, { KnownInteractableTypes } from '../Interactable';
 import TownGameScene from '../TownGameScene';
-import { Player } from '../../../types/CoveyTownSocket';
 
 export default class GameArea extends Interactable {
   //variables for the game
   private _player1Name?: Phaser.GameObjects.Text;
   private _player2Name?: Phaser.GameObjects.Text;
-  private _die1Value?: Phaser.GameObjects.Text;
-  private _die2Value?: Phaser.GameObjects.Text;
+  private _dieValue?: Phaser.GameObjects.Text;
   private _board1Value?: Phaser.GameObjects.Text;
   private _board2Value?: Phaser.GameObjects.Text;
   private _gameArea?: GameAreaController;
@@ -40,18 +38,10 @@ export default class GameArea extends Interactable {
     return ret;
   }
 
-  private get _die1ValueText() {
-    const ret = this._die1Value;
+  private get _dieValueText() {
+    const ret = this._dieValue;
     if (!ret) {
       throw new Error('Expected die 1 value to be defined');
-    }
-    return ret;
-  }
-
-  private get _die2ValueText() {
-    const ret = this._die2Value;
-    if (!ret) {
-      throw new Error('Expected die 2 value to be defined');
     }
     return ret;
   }
@@ -98,16 +88,10 @@ export default class GameArea extends Interactable {
       '(No Player 2)',
       { color: '#000000' },
     );
-    this._die1Value = this.scene.add.text(
+    this._dieValue = this.scene.add.text(
       this.x - this.displayWidth / 2,
       this.y + this.displayHeight / 2,
-      '(No Die 1)',
-      { color: '#000000' },
-    );
-    this._die2Value = this.scene.add.text(
-      this.x - this.displayWidth / 2,
-      this.y + this.displayHeight / 2,
-      '(No Die 2)',
+      '(No Die)',
       { color: '#000000' },
     );
     this._board1Value = this.scene.add.text(
@@ -129,10 +113,9 @@ export default class GameArea extends Interactable {
     const area = areas.find(a => a.id === this.id);
     if (area) {
       this._gameArea = area;
-      this._player1NameText.setText(area.players[0]?.userName ?? '(No Player 1)');
-      this._player2NameText.setText(area.players[1]?.userName ?? '(No Player 2)');
-      this._die1ValueText.setText(area.die1?.toString() ?? '(No Die 1)');
-      this._die2ValueText.setText(area.die2?.toString() ?? '(No Die 2)');
+      this._player1NameText.setText(area.player1?.userName ?? '(No Player 1)');
+      this._player2NameText.setText(area.player2?.userName ?? '(No Player 2)');
+      this._dieValueText.setText(area.die?.toString() ?? '(No Die)');
       this._board1ValueText.setText(area.board1?.toString() ?? '(No Board 1)');
       this._board2ValueText.setText(area.board2?.toString() ?? '(No Board 2)');
     }
@@ -142,5 +125,4 @@ export default class GameArea extends Interactable {
     const { x, y, width, height } = this.getBounds();
     return { x, y, width, height };
   }
-
 }

@@ -2,9 +2,7 @@ import EventEmitter from 'events';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import TypedEmitter from 'typed-emitter';
-import Interactable from '../components/Town/Interactable';
-import { GameArea } from '../generated/client/models/GameArea';
-import { KnuckleGameArea as GameModel, Player } from '../types/CoveyTownSocket';
+import { KnuckleGameArea as GameModel } from '../types/CoveyTownSocket';
 import PlayerController from './PlayerController';
 
 /**
@@ -13,11 +11,12 @@ import PlayerController from './PlayerController';
  */
 export type GameAreaEvents = {
   occupantsChange: (newOccupants: PlayerController[]) => void;
-  playersChange: (newPlayers: Player[]) => void;
+  spectatorsChange: (newSpectators: PlayerController[]) => void;
+  player1Change: (newPlayer: PlayerController) => void;
+  player2Change: (newPlayer: PlayerController) => void;
   board1Change: (newBoard1: number[][]) => void;
   board2Change: (newBoard2: number[][]) => void;
-  die1Change: (newDie1: number) => void;
-  die2Change: (newDie2: number) => void;
+  dieChange: (newDie: number) => void;
   isItPlayerOneTurnChange: (newIsItPlayerOneTurn: boolean) => void;
   gameRunningChange: (newGameRunning: boolean) => void;
 };
@@ -32,19 +31,21 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
 
   private _id: string;
 
-  private _board1: number[][] = [];
+  private _gameRunning: boolean;
 
-  private _board2: number[][] = [];
+  private _spectators: PlayerController[] = [];
 
-  private _players: Player[] = [];
+  private _board1: number[][];
 
-  private _gameRunning = false;
+  private _board2: number[][];
 
-  private _die1 = 0;
+  private _player1?: PlayerController;
 
-  private _die2 = 0;
+  private _player2?: PlayerController;
 
-  private _isItPlayerOneTurn = true;
+  private _dieRoll?: number;
+
+  private _isItPlayerOneTurn: boolean;
 
   /**
    * Create a new GameAreaController
@@ -53,6 +54,10 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
   constructor(id: string) {
     super();
     this._id = id;
+    this._gameRunning = false;
+    this._board1 = [];
+    this._board2 = [];
+    this._isItPlayerOneTurn = true;
   }
 
   /**
@@ -64,10 +69,28 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
   }
 
   /**
+   * The list of spectators in this game area. Changing the set of spectators
+   * will emit an spectatorsChange event.
+   */
+  set spectators(newSpectators: PlayerController[]) {
+    if (
+      newSpectators.length !== this._occupants.length ||
+      _.xor(newSpectators, this._spectators).length > 0
+    ) {
+      this.emit('spectatorsChange', newSpectators);
+      this._spectators = newSpectators;
+    }
+  }
+
+  get spectators() {
+    return this._spectators;
+  }
+
+  /**
    * The list of occupants in this game area. Changing the set of occupants
    * will emit an occupantsChange event.
    */
-   set occupants(newOccupants: PlayerController[]) {
+  set occupants(newOccupants: PlayerController[]) {
     if (
       newOccupants.length !== this._occupants.length ||
       _.xor(newOccupants, this._occupants).length > 0
@@ -82,14 +105,31 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
   }
 
   /**
-   * The list of players in the current game.
+   * Player 1 Accessor
    */
-  get players() {
-    return this._players;
+  get player1(): PlayerController | undefined {
+    return this._player1;
   }
 
-  set players(newPlayers: Player[]) {
-    this._players = newPlayers;
+  /**
+   * Player 1 Setter
+   */
+  set player1(newPlayer: PlayerController | undefined) {
+    this._player1 = newPlayer;
+  }
+
+  /**
+   * Player 2 Accessor
+   */
+  get player2(): PlayerController | undefined {
+    return this._player2;
+  }
+
+  /**
+   * Player 2 Setter
+   */
+  set player2(newPlayer: PlayerController | undefined) {
+    this._player2 = newPlayer;
   }
 
   /**
@@ -115,25 +155,14 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
   }
 
   /**
-   * The value of the first die.
+   * The value of the die.
    */
-  get die1() {
-    return this._die1;
+  get die(): number | undefined {
+    return this._dieRoll;
   }
 
-  set die1(newDie: number) {
-    this._die1 = newDie;
-  }
-
-  /**
-   * The value of the second die.
-   */
-  get die2() {
-    return this._die2;
-  }
-
-  set die2(newDie: number) {
-    this._die2 = newDie;
+  set die(newDie: number | undefined) {
+    this._dieRoll = newDie;
   }
 
   /**
@@ -173,11 +202,12 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
     return {
       id: this._id,
       occupantsByID: this.occupants.map(player => player.id),
-      players: this._players,
+      spectatorsByID: this._spectators.map(player => player.id),
+      player1ID: this._player1?.id,
+      player2ID: this._player2?.id,
       board1: this._board1,
       board2: this._board2,
-      die1: this._die1,
-      die2: this._die2,
+      dieRoll: this._dieRoll,
       gameRunning: this._gameRunning,
       isItPlayerOneTurn: this._isItPlayerOneTurn,
     };
@@ -195,11 +225,14 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
   ): GameAreaController {
     const ret = new GameAreaController(gAreaModel.id);
     ret.occupants = playerFinder(gAreaModel.occupantsByID);
-    ret.players = gAreaModel.players;
+    ret.spectators = playerFinder(gAreaModel.spectatorsByID);
+    ret.player1 =
+      gAreaModel.player1ID === undefined ? undefined : playerFinder([gAreaModel.player1ID]).pop();
+    ret.player2 =
+      gAreaModel.player2ID === undefined ? undefined : playerFinder([gAreaModel.player2ID]).pop();
     ret.board1 = gAreaModel.board1;
     ret.board2 = gAreaModel.board2;
-    ret.die1 = gAreaModel.die1;
-    ret.die2 = gAreaModel.die2;
+    ret.die = gAreaModel.dieRoll;
     ret.gameRunning = gAreaModel.gameRunning;
     ret.isItPlayerOneTurn = gAreaModel.isItPlayerOneTurn;
     return ret;
@@ -216,15 +249,17 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
     playerFinder: (playerIDs: string[]) => PlayerController[],
   ) {
     this.occupants = playerFinder(gAreaModel.occupantsByID);
-    this.players = gAreaModel.players;
+    this.spectators = playerFinder(gAreaModel.spectatorsByID);
+    this.player1 =
+      gAreaModel.player1ID === undefined ? undefined : playerFinder([gAreaModel.player1ID]).pop();
+    this.player2 =
+      gAreaModel.player2ID === undefined ? undefined : playerFinder([gAreaModel.player2ID]).pop();
     this.board1 = gAreaModel.board1;
     this.board2 = gAreaModel.board2;
-    this.die1 = gAreaModel.die1;
-    this.die2 = gAreaModel.die2;
+    this.die = gAreaModel.dieRoll;
     this.gameRunning = gAreaModel.gameRunning;
     this.isItPlayerOneTurn = gAreaModel.isItPlayerOneTurn;
   }
-  
 }
 
 /**
@@ -244,25 +279,58 @@ export function useGameAreaOccupants(area: GameAreaController): PlayerController
 }
 
 /**
- * A react hook to retrieve the players of a GameAreaController, returning an array of Player.
- * If the game is not running, the players will be empty.
- * 
- * This hook will re-render any components that use it when the set of players changes.
+ * A react hook to retrieve the spectators of a GameAreaController, returning an array of PlayerController.
+ *
+ * This hook will re-render any components that use it when the set of spectators changes.
  */
-export function useGameAreaPlayers(area: GameAreaController): Player[] {
-  const [players, setPlayers] = useState(area.players);
+export function useGameAreaSpectators(area: GameAreaController): PlayerController[] {
+  const [spectators, setSpectators] = useState(area.spectators);
   useEffect(() => {
-    area.addListener('playersChange', setPlayers);
+    area.addListener('spectatorsChange', setSpectators);
     return () => {
-      area.removeListener('playersChange', setPlayers);
+      area.removeListener('spectatorsChange', setSpectators);
     };
   }, [area]);
-  return players;
+  return spectators;
+}
+
+/**
+ * A react hook to retrieve player 1 of a GameAreaController, returning player 1.
+ * If the game is not running or player 1 has left, then player 1 will be empty.
+ *
+ * This hook will re-render any components that use it when player 1 changes.
+ */
+export function useGameAreaPlayer1(area: GameAreaController): PlayerController | undefined {
+  const [player1, setPlayer1] = useState(area.player1);
+  useEffect(() => {
+    area.addListener('player1Change', setPlayer1);
+    return () => {
+      area.removeListener('player1Change', setPlayer1);
+    };
+  }, [area]);
+  return player1;
+}
+
+/**
+ * A react hook to retrieve player 2 of a GameAreaController, returning player 2.
+ * If the game is not running or player 2 has left, then player 2 will be empty.
+ *
+ * This hook will re-render any components that use it when player 2 changes.
+ */
+export function useGameAreaPlayer2(area: GameAreaController): PlayerController | undefined {
+  const [player2, setPlayer2] = useState(area.player2);
+  useEffect(() => {
+    area.addListener('player2Change', setPlayer2);
+    return () => {
+      area.removeListener('player2Change', setPlayer2);
+    };
+  }, [area]);
+  return player2;
 }
 
 /**
  * A react hook to retrieve the board1 of a GameAreaController.
- * 
+ *
  * This hook will re-render any components that use it when the board1 changes.
  */
 export function useGameAreaBoard1(area: GameAreaController): number[][] {
@@ -278,7 +346,7 @@ export function useGameAreaBoard1(area: GameAreaController): number[][] {
 
 /**
  * A react hook to retrieve the board2 of a GameAreaController.
- * 
+ *
  * This hook will re-render any components that use it when the board2 changes.
  */
 export function useGameAreaBoard2(area: GameAreaController): number[][] {
@@ -297,36 +365,20 @@ export function useGameAreaBoard2(area: GameAreaController): number[][] {
  *
  * This hook will re-render any components that use it when the die1 changes.
  */
-export function useGameAreaDie1(area: GameAreaController): number {
-  const [die1, setDie1] = useState(area.die1);
+export function useGameAreaDie(area: GameAreaController): number | undefined {
+  const [die, setDie] = useState(area.die);
   useEffect(() => {
-    area.addListener('die1Change', setDie1);
+    area.addListener('dieChange', setDie);
     return () => {
-      area.removeListener('die1Change', setDie1);
+      area.removeListener('dieChange', setDie);
     };
   }, [area]);
-  return die1;
-}
-
-/**
- * A react hook to retrieve the die2 of a GameAreaController.
- * 
- * This hook will re-render any components that use it when the die2 changes.
- */
-export function useGameAreaDie2(area: GameAreaController): number {
-  const [die2, setDie2] = useState(area.die2);
-  useEffect(() => {
-    area.addListener('die2Change', setDie2);
-    return () => {
-      area.removeListener('die2Change', setDie2);
-    };
-  }, [area]);
-  return die2;
+  return die;
 }
 
 /**
  * A react hook to retrieve the gameRunning of a GameAreaController.
- * 
+ *
  * This hook will re-render any components that use it when the gameRunning changes.
  */
 export function useGameAreaGameRunning(area: GameAreaController): boolean {
@@ -342,7 +394,7 @@ export function useGameAreaGameRunning(area: GameAreaController): boolean {
 
 /**
  * A react hook to retrieve the isItPlayerOneTurn of a GameAreaController.
- * 
+ *
  * This hook will re-render any components that use it when the isItPlayerOneTurn changes.
  */
 export function useGameAreaIsItPlayerOneTurn(area: GameAreaController): boolean {

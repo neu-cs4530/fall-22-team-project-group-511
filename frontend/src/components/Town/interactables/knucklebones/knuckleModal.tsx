@@ -10,7 +10,9 @@ import {
   ModalOverlay,
   useToast,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useInteractable } from '../../../../classes/TownController';
+import useTownController from '../../../../hooks/useTownController';
 import DieBoard from './DieBoard';
 import DieComponent from './DieComponent';
 
@@ -30,8 +32,25 @@ export default function KnuckleModal(): JSX.Element {
   //     .fill(0)
   //     .map(() => Array(WIDTH).fill(null)),
   // );
+  const newKnuckleGame = useInteractable('gameArea');
+  const coveyTownController = useTownController();
 
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (newKnuckleGame !== undefined) {
+      setIsOpen(true);
+    }
+  }, [newKnuckleGame]);
+
+  // useEffect(() => {
+  //   if (newConversation) {
+  //     coveyTownController.pause();
+  //   } else {
+  //     coveyTownController.unPause();
+  //   }
+  // }, [coveyTownController, newConversation]);
+
   const toast = useToast();
 
   const onOpen = () => {
@@ -39,10 +58,13 @@ export default function KnuckleModal(): JSX.Element {
       title: 'Knuckle Bones Started!',
       status: 'success',
     });
-    setIsOpen(true);
+    // setIsOpen(true);
   };
 
   const onClose = () => {
+    if (newKnuckleGame) {
+      coveyTownController.interactEnd(newKnuckleGame);
+    }
     setIsOpen(false);
   };
 
@@ -55,7 +77,6 @@ export default function KnuckleModal(): JSX.Element {
 
   return (
     <>
-      <button onClick={onOpen}>Open Modal</button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>

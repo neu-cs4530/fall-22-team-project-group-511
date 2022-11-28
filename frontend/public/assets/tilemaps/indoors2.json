@@ -570,7 +570,7 @@
                  "id":50,
                  "name":"Knucklebones",
                  "rotation":0,
-                 "type":"ConversationArea",
+                 "type":"GameArea",
                  "visible":true,
                  "width":127.281862334617,
                  "x":3040.5292245855,

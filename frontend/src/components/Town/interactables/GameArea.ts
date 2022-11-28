@@ -7,12 +7,20 @@ import TownGameScene from '../TownGameScene';
 export default class GameArea extends Interactable {
   //variables for the game
   private _player1Name?: Phaser.GameObjects.Text;
+
   private _player2Name?: Phaser.GameObjects.Text;
+
   private _dieValue?: Phaser.GameObjects.Text;
+
   private _board1Value?: Phaser.GameObjects.Text;
+
   private _board2Value?: Phaser.GameObjects.Text;
+
   private _gameArea?: GameAreaController;
+
   private _townController: TownController;
+
+  private _isGameRunning?: Phaser.GameObjects.Text;
 
   constructor(scene: TownGameScene) {
     super(scene);
@@ -76,34 +84,10 @@ export default class GameArea extends Interactable {
       this.name,
       { color: '#FFFFFF', backgroundColor: '#000000' },
     );
-    this._player1Name = this.scene.add.text(
+    this._isGameRunning = this.scene.add.text(
       this.x - this.displayWidth / 2,
       this.y + this.displayHeight / 2,
-      '(No Player 1)',
-      { color: '#000000' },
-    );
-    this._player2Name = this.scene.add.text(
-      this.x - this.displayWidth / 2,
-      this.y + this.displayHeight / 2,
-      '(No Player 2)',
-      { color: '#000000' },
-    );
-    this._dieValue = this.scene.add.text(
-      this.x - this.displayWidth / 2,
-      this.y + this.displayHeight / 2,
-      '(No Die)',
-      { color: '#000000' },
-    );
-    this._board1Value = this.scene.add.text(
-      this.x - this.displayWidth / 2,
-      this.y + this.displayHeight / 2,
-      '(No Board 1)',
-      { color: '#000000' },
-    );
-    this._board2Value = this.scene.add.text(
-      this.x - this.displayWidth / 2,
-      this.y + this.displayHeight / 2,
-      '(No Board 2)',
+      '(No Game Running)',
       { color: '#000000' },
     );
     this._updateGameAreas();

@@ -1,6 +1,6 @@
 import assert from 'assert';
 import EventEmitter from 'events';
-import _ from 'lodash';
+import _, { each, update } from 'lodash';
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import TypedEmitter from 'typed-emitter';
@@ -144,6 +144,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    * replace the array with a new one; clients should take note not to retain stale references.
    */
   private _gameAreasInternal: GameAreaController[] = [];
+
   /**
    * The friendly name of the current town, set only once this TownController is connected to the townsService
    */
@@ -360,13 +361,13 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
      * On changes to town settings, update the local state and emit a townSettingsUpdated event to
      * the controller's event listeners
      */
-    this._socket.on('townSettingsUpdated', update => {
-      const newFriendlyName = update.friendlyName;
+    this._socket.on('townSettingsUpdated', settingsUpdate => {
+      const newFriendlyName = settingsUpdate.friendlyName;
       if (newFriendlyName !== undefined) {
         this._friendlyName = newFriendlyName;
       }
-      if (update.isPubliclyListed !== undefined) {
-        this._townIsPubliclyListed = update.isPubliclyListed;
+      if (settingsUpdate.isPubliclyListed !== undefined) {
+        this._townIsPubliclyListed = settingsUpdate.isPubliclyListed;
       }
     });
     /**
@@ -450,8 +451,26 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         updatedViewingArea?.updateFrom(interactable);
       }
       //otherwise, it must be a game area, which is handled by the game area controller
-      else {
+      else if (isGameArea(interactable)) {
         //TODO: handle game area updates
+        const updatedGameArea = this._gameAreas.find(eachArea => eachArea.id === interactable.id);
+        if (updatedGameArea) {
+          updatedGameArea.board1 = interactable.board1;
+          updatedGameArea.board2 = interactable.board2;
+          updatedGameArea.die = interactable.dieRoll;
+          updatedGameArea.gameRunning = interactable.gameRunning;
+          if (interactable.player1ID) {
+            updatedGameArea.player1 = this._playersByIDs([interactable.player1ID])[0];
+          }
+          if (interactable.player2ID) {
+            updatedGameArea.player2 = this._playersByIDs([interactable.player2ID])[0];
+          }
+          if (interactable.spectatorsByID) {
+            updatedGameArea.spectators = this._playersByIDs(interactable.spectatorsByID);
+          }
+        }
+
+        // updatedGameArea?.updateFromGameAreaModel(interactable);
       }
     });
   }
@@ -661,9 +680,9 @@ export function useTownSettings() {
     townController.townIsPubliclyListed,
   );
   useEffect(() => {
-    const updateTownSettings = (update: TownSettingsUpdate) => {
-      const newName = update.friendlyName;
-      const newPublicSetting = update.isPubliclyListed;
+    const updateTownSettings = (townUpdate: TownSettingsUpdate) => {
+      const newName = townUpdate.friendlyName;
+      const newPublicSetting = townUpdate.isPubliclyListed;
       if (newName !== undefined) {
         setFriendlyName(newName);
       }

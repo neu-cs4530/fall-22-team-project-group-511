@@ -1,9 +1,13 @@
 import TownController from '../../classes/TownController';
 import TownGameScene from './TownGameScene';
-import KnuckleModal from './interactables/knuckleModal';
+import KnuckleModal from './interactables/knucklebones/knuckleModal';
 
 //TODO is there not some way to figure this out from generic types/supertypes?
-export type KnownInteractableTypes = 'conversationArea' | 'viewingArea' | 'transporter' | 'gameArea';
+export type KnownInteractableTypes =
+  | 'conversationArea'
+  | 'viewingArea'
+  | 'transporter'
+  | 'gameArea';
 
 /**
  * A base abstract class for representing an "interactable" in the Phaser game world.

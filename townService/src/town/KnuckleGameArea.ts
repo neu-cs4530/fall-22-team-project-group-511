@@ -12,15 +12,15 @@ import InteractableArea from './InteractableArea';
 export default class KnuckleGameArea extends InteractableArea {
   public gameRunning: boolean;
 
-  public spectators: Player[];
+  public spectatorsByID: string[];
 
   public board1: number[][];
 
   public board2: number[][];
 
-  public player1?: Player;
+  public player1ID?: string;
 
-  public player2?: Player;
+  public player2ID?: string;
 
   public dieRoll?: number;
 
@@ -29,10 +29,6 @@ export default class KnuckleGameArea extends InteractableArea {
   /** The area is "active" when there are players inside of it  */
   public get isActive(): boolean {
     return this._occupants.length > 0;
-  }
-
-  public get spectatorsByID(): string[] {
-    return this.spectators.map(player => player.id);
   }
 
   /**
@@ -49,7 +45,7 @@ export default class KnuckleGameArea extends InteractableArea {
   ) {
     super(id, coordinates, townEmitter);
     this.gameRunning = false;
-    this.spectators = [];
+    this.spectatorsByID = [];
     this.board1 = this.createBoard();
     this.board2 = this.createBoard();
     this.isItPlayerOneTurn = true;
@@ -63,8 +59,8 @@ export default class KnuckleGameArea extends InteractableArea {
       spectatorsByID: this.spectatorsByID,
       board1: this.board1,
       board2: this.board2,
-      player1ID: this.player1?.id,
-      player2ID: this.player2?.id,
+      player1ID: this.player1ID,
+      player2ID: this.player2ID,
       isItPlayerOneTurn: this.isItPlayerOneTurn,
     };
   }
@@ -80,15 +76,15 @@ export default class KnuckleGameArea extends InteractableArea {
   public remove(player: Player) {
     super.remove(player);
 
-    if (this.player1?.id === player.id) {
-      this.player1 = undefined;
-    } else if (this.player2?.id === player.id) {
-      this.player2 = undefined;
+    if (this.player1ID === player.id) {
+      this.player1ID = undefined;
+    } else if (this.player2ID === player.id) {
+      this.player2ID = undefined;
     } else {
-      this.spectators.filter(p => p.id !== player.id);
+      this.spectatorsByID.filter(p => p !== player.id);
     }
 
-    if (this.gameRunning && (this.player1 === undefined || this.player2 === undefined)) {
+    if (this.gameRunning && (this.player1ID === undefined || this.player2ID === undefined)) {
       this.gameRunning = false;
       this.board1 = this.createBoard();
       this.board2 = this.createBoard();
@@ -105,12 +101,12 @@ export default class KnuckleGameArea extends InteractableArea {
    */
   public add(player: Player): void {
     super.add(player);
-    if (this.player1 === undefined) {
-      this.player1 = player;
-    } else if (this.player2 === undefined) {
-      this.player2 = player;
+    if (this.player1ID === undefined) {
+      this.player1ID = player.id;
+    } else if (this.player2ID === undefined) {
+      this.player2ID = player.id;
     } else {
-      this.spectators.push(player);
+      this.spectatorsByID.push(player.id);
     }
   }
 
@@ -120,13 +116,13 @@ export default class KnuckleGameArea extends InteractableArea {
    * Returns early if the game is not running
    */
   public rollDie(player: Player): void {
-    if (!this.gameRunning || this.player1 === undefined || this.player2 === undefined) {
+    if (!this.gameRunning || this.player1ID === undefined || this.player2ID === undefined) {
       return;
     }
-    if (this.isItPlayerOneTurn && player.id !== this.player1.id) {
+    if (this.isItPlayerOneTurn && player.id !== this.player1ID) {
       return;
     }
-    if (!this.isItPlayerOneTurn && player.id !== this.player2.id) {
+    if (!this.isItPlayerOneTurn && player.id !== this.player2ID) {
       return;
     }
     const roll: number = Math.floor(Math.random() * 6) + 1;
@@ -142,13 +138,13 @@ export default class KnuckleGameArea extends InteractableArea {
    * @returns true if the player was able to place their die on the board, false if the player was not able to place their die on the board
    */
   public placeDie(player: Player, row: number): boolean {
-    if (!this.gameRunning || this.player1 === undefined || this.player2 === undefined) {
+    if (!this.gameRunning || this.player1ID === undefined || this.player2ID === undefined) {
       return false;
     }
-    if (this.isItPlayerOneTurn && player.id !== this.player1.id) {
+    if (this.isItPlayerOneTurn && player.id !== this.player1ID) {
       return false;
     }
-    if (!this.isItPlayerOneTurn && player.id !== this.player2.id) {
+    if (!this.isItPlayerOneTurn && player.id !== this.player2ID) {
       return false;
     }
     if (this.dieRoll === undefined) {
@@ -187,13 +183,13 @@ export default class KnuckleGameArea extends InteractableArea {
 
   /**
    * Starts a game if:
-   * 1. player1 and player2 are defined
+   * 1. player1ID and player2ID are defined
    * 2. The game is not already running
    *
    * @returns true if the game was started, false if the game was not started
    */
   public startGame(): void {
-    if (this.player1 === undefined || this.player2 === undefined || this.gameRunning) {
+    if (this.player1ID === undefined || this.player2ID === undefined || this.gameRunning) {
       return;
     } else {
       this.gameRunning = true;

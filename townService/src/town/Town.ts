@@ -14,10 +14,12 @@ import {
   ServerToClientEvents,
   SocketData,
   ViewingArea as ViewingAreaModel,
+  KnuckleGameArea as KnuckleGameAreaModel,
 } from '../types/CoveyTownSocket';
 import ConversationArea from './ConversationArea';
 import InteractableArea from './InteractableArea';
 import ViewingArea from './ViewingArea';
+import KnuckleGameArea from './KnuckleGameArea';
 
 /**
  * The Town class implements the logic for each town: managing the various events that
@@ -279,6 +281,25 @@ export default class Town {
     }
     area.updateModel(viewingArea);
     area.addPlayersWithinBounds(this._players);
+    this._broadcastEmitter.emit('interactableUpdate', area.toModel());
+    return true;
+  }
+
+  public addKnuckleGameArea(knuckleGameArea: KnuckleGameAreaModel): boolean {
+    const area = this._interactables.find(
+      eachArea => eachArea.id === knuckleGameArea.id,
+    ) as KnuckleGameArea;
+
+    if (!area) {
+      return false;
+    }
+
+    area.addPlayersWithinBounds(this._players);
+    area.occupantsByID.forEach(occupant => {
+      const playerToAdd = this.players.filter(player => player.id === occupant)[0];
+      area.add(playerToAdd);
+    });
+
     this._broadcastEmitter.emit('interactableUpdate', area.toModel());
     return true;
   }

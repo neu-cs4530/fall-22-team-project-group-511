@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@emotion/react';
 import EventEmitter from 'events';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
@@ -361,7 +362,7 @@ export function useGameAreaBoard2(area: GameAreaController): number[][] {
 }
 
 /**
- * A react hook to retrieve the die1 of a GameAreaController.
+ * A react hook to retrieve the die of a GameAreaController.
  *
  * This hook will re-render any components that use it when the die1 changes.
  */
@@ -407,3 +408,11 @@ export function useGameAreaIsItPlayerOneTurn(area: GameAreaController): boolean 
   }, [area]);
   return isItPlayerOneTurn;
 }
+
+/**
+ * Call roll die from front end to backend
+ */
+
+// set rollDie() {
+//   this.emit('dieChange', )
+// }

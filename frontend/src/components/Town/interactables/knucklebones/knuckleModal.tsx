@@ -27,43 +27,49 @@ const HEIGHT = 100;
 
 //takes in prop onDismiss so that parent can hide it
 export default function KnuckleModal(): JSX.Element {
-  // const [grid, setGrid] = useState<Cell[][]>(
-  //   Array(HEIGHT)
-  //     .fill(0)
-  //     .map(() => Array(WIDTH).fill(null)),
-  // );
-  const newKnuckleGame = useInteractable('gameArea');
+  const knuckleGame = useInteractable('gameArea');
   const coveyTownController = useTownController();
+
+  // coveyTownController.gameAreas.filter(area => {
+  //   if (area.player1?.id == coveyTownController.ourPlayer.id) {
+  //     const currentGameArea = area;
+  //     const board1 = useGameAreaBoard1(area);
+  //     const board2 = useGameAreaBoard2(area);
+  //     const die = useGameAreaDie(area);
+  //   } else if (area.player2?.id == coveyTownController.ourPlayer.id) {
+  //     const currentGameArea = area;
+  //     const die = useGameAreaDie(area);
+  //   }
+  // });
 
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    if (newKnuckleGame !== undefined) {
+    //started
+    if (knuckleGame !== undefined) {
       setIsOpen(true);
+      coveyTownController.pause();
     }
-  }, [newKnuckleGame]);
+  }, [knuckleGame]);
 
   // useEffect(() => {
-  //   if (newConversation) {
-  //     coveyTownController.pause();
-  //   } else {
-  //     coveyTownController.unPause();
-  //   }
-  // }, [coveyTownController, newConversation]);
+  //   setDie()
+  // },[die]);
 
   const toast = useToast();
 
-  const onOpen = () => {
-    toast({
-      title: 'Knuckle Bones Started!',
-      status: 'success',
-    });
-    // setIsOpen(true);
-  };
+  // const onOpen = () => {
+  //   toast({
+  //     title: 'Knuckle Bones Started!',
+  //     status: 'success',
+  //   });
+  //   // setIsOpen(true);
+  // };
 
   const onClose = () => {
-    if (newKnuckleGame) {
-      coveyTownController.interactEnd(newKnuckleGame);
+    if (knuckleGame) {
+      coveyTownController.interactEnd(knuckleGame);
+      coveyTownController.unPause();
     }
     setIsOpen(false);
   };
@@ -71,6 +77,7 @@ export default function KnuckleModal(): JSX.Element {
   const [rolledDie, setRolledDie] = useState(0);
 
   const rollDie = () => {
+    // DieBoard.
     const rand = Math.floor(Math.random() * 6) + 1;
     setRolledDie(rand);
   };

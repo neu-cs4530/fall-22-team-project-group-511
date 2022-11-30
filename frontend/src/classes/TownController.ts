@@ -558,6 +558,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    *
    * @param newArea
    */
+  /*
   async createGameArea(newArea: {
     id: string;
     gameRunning: boolean;
@@ -572,7 +573,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }) {
     await this._townsService.createGameArea(this.townID, this.sessionToken, newArea);
   }
-
+  */
   /**
    * Disconnect from the town, notifying the townService that we are leaving and returning
    * to the login page

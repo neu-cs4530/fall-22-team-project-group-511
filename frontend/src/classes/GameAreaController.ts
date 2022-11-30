@@ -12,11 +12,11 @@ import PlayerController from './PlayerController';
 export type GameAreaEvents = {
   occupantsChange: (newOccupants: PlayerController[]) => void;
   spectatorsChange: (newSpectators: PlayerController[]) => void;
-  player1Change: (newPlayer: PlayerController) => void;
-  player2Change: (newPlayer: PlayerController) => void;
+  player1Change: (newPlayer?: PlayerController) => void;
+  player2Change: (newPlayer?: PlayerController) => void;
   board1Change: (newBoard1: number[][]) => void;
   board2Change: (newBoard2: number[][]) => void;
-  dieChange: (newDie: number) => void;
+  dieChange: (newDie?: number) => void;
   isItPlayerOneTurnChange: (newIsItPlayerOneTurn: boolean) => void;
   gameRunningChange: (newGameRunning: boolean) => void;
 };
@@ -115,6 +115,9 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
    * Player 1 Setter
    */
   set player1(newPlayer: PlayerController | undefined) {
+    if (this._player1?.id !== newPlayer?.id) {
+      this.emit('player1Change', newPlayer);
+    }
     this._player1 = newPlayer;
   }
 
@@ -129,6 +132,9 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
    * Player 2 Setter
    */
   set player2(newPlayer: PlayerController | undefined) {
+    if (this._player2?.id !== newPlayer?.id) {
+      this.emit('player2Change', newPlayer);
+    }
     this._player2 = newPlayer;
   }
 
@@ -140,6 +146,9 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
   }
 
   set board1(newBoard: number[][]) {
+    if (this._board1 !== newBoard) {
+      this.emit('board1Change', newBoard);
+    }
     this._board1 = newBoard;
   }
 
@@ -151,6 +160,9 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
   }
 
   set board2(newBoard: number[][]) {
+    if (this._board2 !== newBoard) {
+      this.emit('board2Change', newBoard);
+    }
     this._board2 = newBoard;
   }
 
@@ -162,6 +174,7 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
   }
 
   set die(newDie: number | undefined) {
+    this.emit('dieChange', newDie);
     this._dieRoll = newDie;
   }
 
@@ -173,6 +186,9 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
   }
 
   set gameRunning(newGameRunning: boolean) {
+    if (this._gameRunning !== newGameRunning) {
+      this.emit('gameRunningChange', newGameRunning);
+    }
     this._gameRunning = newGameRunning;
   }
 
@@ -184,6 +200,9 @@ export default class GameAreaController extends (EventEmitter as new () => Typed
   }
 
   set isItPlayerOneTurn(newIsItPlayerOneTurn: boolean) {
+    if (this._isItPlayerOneTurn !== newIsItPlayerOneTurn) {
+      this.emit('isItPlayerOneTurnChange', newIsItPlayerOneTurn);
+    }
     this._isItPlayerOneTurn = newIsItPlayerOneTurn;
   }
 

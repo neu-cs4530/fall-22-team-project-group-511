@@ -43,16 +43,15 @@ export default class KnuckleGameArea extends InteractableArea {
    * @param townEmitter a broadcast emitter that can be used to emit updates to players
    */
   public constructor(
-    { id }: KnuckleGameAreaModel,
+    { id, gameRunning, board1, board2, isItPlayerOneTurn }: KnuckleGameAreaModel,
     coordinates: BoundingBox,
     townEmitter: TownEmitter,
   ) {
     super(id, coordinates, townEmitter);
-    this.gameRunning = false;
-    this.spectators = [];
-    this.board1 = this.createBoard();
-    this.board2 = this.createBoard();
-    this.isItPlayerOneTurn = true;
+    this.gameRunning = gameRunning;
+    this.board1 = board1;
+    this.board2 = board2;
+    this.isItPlayerOneTurn = isItPlayerOneTurn;
   }
 
   public toModel(): KnuckleGameAreaModel {
@@ -112,6 +111,7 @@ export default class KnuckleGameArea extends InteractableArea {
     } else {
       this.spectators.push(player);
     }
+    this._emitAreaChanged();
   }
 
   /**
@@ -131,6 +131,7 @@ export default class KnuckleGameArea extends InteractableArea {
     }
     const roll: number = Math.floor(Math.random() * 6) + 1;
     this.dieRoll = roll;
+    this._emitAreaChanged();
   }
 
   /**
@@ -182,6 +183,7 @@ export default class KnuckleGameArea extends InteractableArea {
     }
 
     this.dieRoll = undefined;
+    this._emitAreaChanged();
     return true;
   }
 
@@ -198,6 +200,7 @@ export default class KnuckleGameArea extends InteractableArea {
     } else {
       this.gameRunning = true;
     }
+    this._emitAreaChanged();
   }
 
   createBoard(): number[][] {
@@ -205,6 +208,7 @@ export default class KnuckleGameArea extends InteractableArea {
     for (let i = 0; i < 3; i++) {
       board.push([0, 0, 0]);
     }
+    this._emitAreaChanged();
     return board;
   }
 

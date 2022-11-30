@@ -45,6 +45,19 @@ export default function TownMap(): JSX.Element {
     };
   }, [coveyTownController]);
 
+  coveyTownController.createGameArea({
+    id: 'd',
+    occupantsByID: [' '],
+    gameRunning: false,
+    spectatorsByID: [' '],
+    board1: [[1], [1]],
+    board2: [[1], [1]],
+    player1ID: 'string',
+    player2ID: 'string',
+    dieRoll: 1,
+    isItPlayerOneTurn: true,
+  });
+
   const gameArea = coveyTownController.gameAreas[0];
 
   return (

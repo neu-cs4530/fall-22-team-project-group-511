@@ -367,7 +367,7 @@ export function useGameAreaBoard2(area: GameAreaController): number[][] {
  * This hook will re-render any components that use it when the die1 changes.
  */
 export function useGameAreaDie(area: GameAreaController): number | undefined {
-  const [die, setDie] = useState(area.die);
+  const [die, setDie] = useState(0);
   useEffect(() => {
     area.addListener('dieChange', setDie);
     return () => {

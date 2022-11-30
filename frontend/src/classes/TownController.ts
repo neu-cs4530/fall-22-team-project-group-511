@@ -562,6 +562,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    */
   async createGameArea(newArea: GameModel) {
     await this._townsService.createKnuckleArea(this.townID, this.sessionToken, newArea);
+    // await this._gameAreasInternal.push(new GameAreaController(newArea.id));
   }
 
   /**
@@ -596,6 +597,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
         this._conversationAreas = [];
         this._viewingAreas = [];
+        this._gameAreas = [];
         initialData.interactables.forEach(eachInteractable => {
           if (isConversationArea(eachInteractable)) {
             this._conversationAreasInternal.push(
@@ -606,6 +608,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             );
           } else if (isViewingArea(eachInteractable)) {
             this._viewingAreas.push(new ViewingAreaController(eachInteractable));
+          } else if (isGameArea(eachInteractable)) {
+            this._gameAreasInternal.push(new GameAreaController(eachInteractable.id));
           }
         });
         this._userID = initialData.userID;

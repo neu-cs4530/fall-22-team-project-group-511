@@ -15,6 +15,7 @@ import {
   SocketData,
   ViewingArea as ViewingAreaModel,
   KnuckleGameArea as KnuckleGameAreaModel,
+  BoundingBox,
 } from '../types/CoveyTownSocket';
 import ConversationArea from './ConversationArea';
 import InteractableArea from './InteractableArea';
@@ -301,7 +302,12 @@ export default class Town {
     ) as KnuckleGameArea;
 
     if (!area) {
-      return false;
+      const newKnuckleGameArea = new KnuckleGameArea(
+        knuckleGameArea,
+        { x: 100, y: 100, width: 100, height: 100 },
+        this._broadcastEmitter,
+      );
+      return true;
     }
 
     area.addPlayersWithinBounds(this._players);

@@ -183,14 +183,14 @@ export class TownsController extends Controller {
   ): Promise<void> {
     const town = this._townsStore.getTownByID(townID);
     if (!town) {
-      throw new InvalidParametersError('Invalid values specified');
+      throw new InvalidParametersError('Invalid town given');
     }
     if (!town?.getPlayerBySessionToken(sessionToken)) {
-      throw new InvalidParametersError('Invalid values specified');
+      throw new InvalidParametersError('Invalid session token given');
     }
     const success = town.addKnuckleGameArea(requestBody);
     if (!success) {
-      throw new InvalidParametersError('Invalid values specified');
+      throw new InvalidParametersError('Failed to add knuckle game area');
     }
   }
 
@@ -210,10 +210,7 @@ export class TownsController extends Controller {
       socket.disconnect(true);
       return;
     }
-
-    // Connect the client to the socket.io broadcast room for this town
     socket.join(town.townID);
-
     const newPlayer = await town.addPlayer(userName, socket);
     assert(newPlayer.videoToken);
     socket.emit('initialize', {

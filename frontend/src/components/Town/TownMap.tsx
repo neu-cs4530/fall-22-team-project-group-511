@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import GameAreaController from '../../classes/GameAreaController';
 import useTownController from '../../hooks/useTownController';
 import SocialSidebar from '../SocialSidebar/SocialSidebar';
 import KnuckleModal from './interactables/knucklebones/knuckleModal';
@@ -8,6 +9,24 @@ import TownGameScene from './TownGameScene';
 
 export default function TownMap(): JSX.Element {
   const coveyTownController = useTownController();
+  const [gameArea, setGameArea] = useState<GameAreaController | null>(null);
+
+  useEffect(() => {
+    coveyTownController
+      .createGameArea({
+        id: 'd',
+        occupantsByID: [' '],
+        gameRunning: false,
+        spectatorsByID: [' '],
+        board1: [[1], [1]],
+        board2: [[1], [1]],
+        player1ID: 'string',
+        player2ID: 'string',
+        dieRoll: 1,
+        isItPlayerOneTurn: true,
+      })
+      .then(() => setGameArea(coveyTownController.gameAreas[0]));
+  }, [coveyTownController]);
 
   useEffect(() => {
     const config = {
@@ -44,22 +63,10 @@ export default function TownMap(): JSX.Element {
       game.destroy(true);
     };
   }, [coveyTownController]);
-
-  coveyTownController.createGameArea({
-    id: 'd',
-    occupantsByID: [' '],
-    gameRunning: false,
-    spectatorsByID: [' '],
-    board1: [[1], [1]],
-    board2: [[1], [1]],
-    player1ID: 'string',
-    player2ID: 'string',
-    dieRoll: 1,
-    isItPlayerOneTurn: true,
-  });
-
-  const gameArea = coveyTownController.gameAreas[0];
-
+  if (gameArea === null) {
+    return <div>Loading...</div>;
+  }
+  console.log(gameArea);
   return (
     <div id='app-container'>
       <KnuckleModal currentGameArea={gameArea} />

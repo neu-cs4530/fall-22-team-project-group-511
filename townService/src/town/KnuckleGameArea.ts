@@ -191,7 +191,6 @@ export default class KnuckleGameArea extends InteractableArea {
    */
   public startGame(): void {
     if (this.player1ID === undefined || this.player2ID === undefined || this.gameRunning) {
-      return;
     } else {
       this.gameRunning = true;
     }

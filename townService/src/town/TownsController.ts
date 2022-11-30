@@ -122,6 +122,7 @@ export class TownsController extends Controller {
     @Header('X-Session-Token') sessionToken: string,
     @Body() requestBody: ConversationArea,
   ): Promise<void> {
+    console.log('create conv area');
     const town = this._townsStore.getTownByID(townID);
     if (!town?.getPlayerBySessionToken(sessionToken)) {
       throw new InvalidParametersError('Invalid values specified');
@@ -151,6 +152,7 @@ export class TownsController extends Controller {
     @Body() requestBody: ViewingArea,
   ): Promise<void> {
     const town = this._townsStore.getTownByID(townID);
+    console.log('create view area');
     if (!town) {
       throw new InvalidParametersError('Invalid values specified');
     }
@@ -181,6 +183,7 @@ export class TownsController extends Controller {
     @Header('X-Session-Token') sessionToken: string,
     @Body() requestBody: KnuckleGameArea,
   ): Promise<void> {
+    console.log('create knuckle area');
     const town = this._townsStore.getTownByID(townID);
     if (!town) {
       throw new InvalidParametersError('Invalid town given');

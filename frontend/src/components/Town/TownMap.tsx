@@ -12,20 +12,25 @@ export default function TownMap(): JSX.Element {
   const [gameArea, setGameArea] = useState<GameAreaController | null>(null);
 
   useEffect(() => {
-    coveyTownController
-      .createGameArea({
-        id: 'd',
-        occupantsByID: [' '],
-        gameRunning: false,
-        spectatorsByID: [' '],
-        board1: [[1], [1]],
-        board2: [[1], [1]],
-        player1ID: 'string',
-        player2ID: 'string',
-        dieRoll: 1,
-        isItPlayerOneTurn: true,
-      })
-      .then(() => setGameArea(coveyTownController.gameAreas[0]));
+    // coveyTownController
+    //   .createGameArea({
+    //     id: 'd',
+    //     occupantsByID: [' '],
+    //     gameRunning: false,
+    //     spectatorsByID: [' '],
+    //     board1: [[1], [1]],
+    //     board2: [[1], [1]],
+    //     player1ID: 'string',
+    //     player2ID: 'string',
+    //     dieRoll: 1,
+    //     isItPlayerOneTurn: true,
+    //   })
+    //   .then(() => {
+    //     console.log(coveyTownController.conversationAreas);
+    //     console.log(coveyTownController.gameAreas);
+    //     console.log(coveyTownController.gameAreas[0]);
+    //     setGameArea(coveyTownController.gameAreas[0]);
+    //   });
   }, [coveyTownController]);
 
   useEffect(() => {

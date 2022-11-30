@@ -1,12 +1,4 @@
 { "compressionlevel":-1,
- "editorsettings":
-    {
-     "export":
-        {
-         "format":"json",
-         "target":"indoors2..tmj"
-        }
-    },
  "height":45,
  "infinite":false,
  "layers":[
@@ -497,17 +489,6 @@
                  "width":103.333666666667,
                  "x":226.333166666667,
                  "y":1104.66683333333
-                }, 
-                {
-                 "height":125.333,
-                 "id":29,
-                 "name":"Basement Lounge",
-                 "rotation":0,
-                 "type":"ConversationArea",
-                 "visible":true,
-                 "width":134.000333333333,
-                 "x":2943.6665,
-                 "y":1028.66683333333
                 }, 
                 {
                  "height":223.999666666667,

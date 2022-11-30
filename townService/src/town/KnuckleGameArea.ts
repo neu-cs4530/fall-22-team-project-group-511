@@ -46,8 +46,8 @@ export default class KnuckleGameArea extends InteractableArea {
     super(id, coordinates, townEmitter);
     this.gameRunning = false;
     this.spectatorsByID = [];
-    this.board1 = this.createBoard();
-    this.board2 = this.createBoard();
+    this.board1 = KnuckleGameArea.createBoard();
+    this.board2 = KnuckleGameArea.createBoard();
     this.isItPlayerOneTurn = true;
   }
 
@@ -86,8 +86,8 @@ export default class KnuckleGameArea extends InteractableArea {
 
     if (this.gameRunning && (this.player1ID === undefined || this.player2ID === undefined)) {
       this.gameRunning = false;
-      this.board1 = this.createBoard();
-      this.board2 = this.createBoard();
+      this.board1 = KnuckleGameArea.createBoard();
+      this.board2 = KnuckleGameArea.createBoard();
       this.dieRoll = undefined;
       this.isItPlayerOneTurn = true;
       this._emitAreaChanged();
@@ -196,11 +196,41 @@ export default class KnuckleGameArea extends InteractableArea {
     }
   }
 
-  createBoard(): number[][] {
+  public static createBoard(): number[][] {
     const board: number[][] = [];
     for (let i = 0; i < 3; i++) {
       board.push([0, 0, 0]);
     }
     return board;
+  }
+
+  /**
+   * Creates a new ConversationArea object that will represent a Conversation Area object in the town map.
+   * @param mapObject An ITiledMapObject that represents a rectangle in which this conversation area exists
+   * @param broadcastEmitter An emitter that can be used by this conversation area to broadcast updates
+   * @returns
+   */
+  public static fromMapObject(
+    mapObject: ITiledMapObject,
+    broadcastEmitter: TownEmitter,
+  ): KnuckleGameArea {
+    const { name, width, height } = mapObject;
+    if (!width || !height) {
+      throw new Error(`Malformed viewing area ${name}`);
+    }
+    const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
+    return new KnuckleGameArea(
+      {
+        id: name,
+        occupantsByID: [],
+        gameRunning: false,
+        spectatorsByID: [],
+        isItPlayerOneTurn: true,
+        board1: this.createBoard(),
+        board2: this.createBoard(),
+      },
+      rect,
+      broadcastEmitter,
+    );
   }
 }

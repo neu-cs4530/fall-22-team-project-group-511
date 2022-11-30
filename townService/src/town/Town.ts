@@ -302,12 +302,14 @@ export default class Town {
     ) as KnuckleGameArea;
 
     if (!area) {
-      const newKnuckleGameArea = new KnuckleGameArea(
+      const area = new KnuckleGameArea(
         knuckleGameArea,
-        { x: 100, y: 100, width: 100, height: 100 },
+        this.getInteractable(knuckleGameArea.id).boundingBox,
         this._broadcastEmitter,
       );
-      return true;
+      this._interactables.push(area);
+      console.log('TOWN.TS');
+      console.log(area);
     }
 
     area.addPlayersWithinBounds(this._players);
@@ -315,6 +317,8 @@ export default class Town {
       const playerToAdd = this.players.filter(player => player.id === occupant)[0];
       area.add(playerToAdd);
     });
+
+    console.log(area);
 
     this._broadcastEmitter.emit('interactableUpdate', area.toModel());
     return true;
@@ -389,7 +393,16 @@ export default class Town {
         ConversationArea.fromMapObject(eachConvAreaObj, this._broadcastEmitter),
       );
 
-    this._interactables = this._interactables.concat(viewingAreas).concat(conversationAreas);
+    const gameAreas = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'GameArea')
+      .map(eachGameAreaObj =>
+        KnuckleGameArea.fromMapObject(eachGameAreaObj, this._broadcastEmitter),
+      );
+
+    this._interactables = this._interactables
+      .concat(viewingAreas)
+      .concat(conversationAreas)
+      .concat(gameAreas);
     this._validateInteractables();
   }
 

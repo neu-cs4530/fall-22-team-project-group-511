@@ -49,6 +49,7 @@ export default class KnuckleGameArea extends InteractableArea {
   ) {
     super(id, coordinates, townEmitter);
     this.gameRunning = gameRunning;
+    this.spectators = [];
     this.board1 = board1;
     this.board2 = board2;
     this.isItPlayerOneTurn = isItPlayerOneTurn;

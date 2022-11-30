@@ -207,4 +207,34 @@ export default class KnuckleGameArea extends InteractableArea {
     }
     return board;
   }
+
+  /**
+   * Creates a new ConversationArea object that will represent a Conversation Area object in the town map.
+   * @param mapObject An ITiledMapObject that represents a rectangle in which this conversation area exists
+   * @param broadcastEmitter An emitter that can be used by this conversation area to broadcast updates
+   * @returns
+   */
+  public static fromMapObject(
+    mapObject: ITiledMapObject,
+    broadcastEmitter: TownEmitter,
+  ): KnuckleGameArea {
+    const { name, width, height } = mapObject;
+    if (!width || !height) {
+      throw new Error(`Malformed viewing area ${name}`);
+    }
+    const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
+    return new KnuckleGameArea(
+      {
+        id: name,
+        occupantsByID: [],
+        spectatorsByID: [],
+        gameRunning: false,
+        board1: [][3],
+        board2: [][3],
+        isItPlayerOneTurn: true,
+      },
+      rect,
+      broadcastEmitter,
+    );
+  }
 }

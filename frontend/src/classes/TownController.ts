@@ -1,6 +1,6 @@
 import assert from 'assert';
 import EventEmitter from 'events';
-import _, { each, update } from 'lodash';
+import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import TypedEmitter from 'typed-emitter';
@@ -15,13 +15,12 @@ import {
   PlayerLocation,
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
-  KnuckleGameArea as GameModel,
 } from '../types/CoveyTownSocket';
-import { isConversationArea, isViewingArea, isGameArea } from '../types/TypeUtils';
+import { isConversationArea, isGameArea, isViewingArea } from '../types/TypeUtils';
 import ConversationAreaController from './ConversationAreaController';
+import GameAreaController from './GameAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
-import GameAreaController from './GameAreaController';
 
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
 
@@ -423,8 +422,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
     /**
      * When an interactable's state changes, push that update into the relevant controller, which is assumed
-     * to be either a Viewing Area or a Conversation Area, and which is assumed to already be represented by a
-     * ViewingAreaController or ConversationAreaController that this TownController has.
+     * to be either a Viewing Area or a Conversation Area or a Game Area, and which is assumed to already be represented by a
+     * ViewingAreaController or ConversationAreaController or GameAreaController that this TownController has.
      *
      * If a conversation area transitions from empty to occupied (or occupied to empty), this handler will emit
      * a conversationAreasChagned event to listeners of this TownController.
@@ -553,6 +552,28 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
+   * Create a new game area, sending the request to the townService. Throws an error if the request
+   * is not successful. Does not immediately update local state about the new game area - it will be
+   * updated once the townService creates the area and emits an interactableUpdate
+   *
+   * @param newArea
+   */
+  async createGameArea(newArea: {
+    id: string;
+    gameRunning: boolean;
+    occupantsByID: Array<string>;
+    player1ByID?: string;
+    player2ByID?: string;
+    spectatorsByID: Array<string>;
+    board1: number[][];
+    board2: number[][];
+    dieRoll?: number;
+    isItPlayerOneTurn: boolean;
+  }) {
+    await this._townsService.createGameArea(this.townID, this.sessionToken, newArea);
+  }
+
+  /**
    * Disconnect from the town, notifying the townService that we are leaving and returning
    * to the login page
    */
@@ -584,6 +605,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
         this._conversationAreas = [];
         this._viewingAreas = [];
+        this._gameAreas = [];
         initialData.interactables.forEach(eachInteractable => {
           if (isConversationArea(eachInteractable)) {
             this._conversationAreasInternal.push(
@@ -594,6 +616,10 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             );
           } else if (isViewingArea(eachInteractable)) {
             this._viewingAreas.push(new ViewingAreaController(eachInteractable));
+          } else if (isGameArea(eachInteractable)) {
+            this._gameAreasInternal.push(
+              GameAreaController.fromGameAreaModel(eachInteractable, this._playersByIDs.bind(this)),
+            );
           }
         });
         this._userID = initialData.userID;

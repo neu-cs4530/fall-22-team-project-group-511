@@ -11,6 +11,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
+import GameAreaController, { useGameAreaDie } from '../../../../classes/GameAreaController';
 import { useInteractable } from '../../../../classes/TownController';
 import useTownController from '../../../../hooks/useTownController';
 import DieBoard from './DieBoard';
@@ -26,21 +27,30 @@ const HEIGHT = 100;
 //}, []);
 
 //takes in prop onDismiss so that parent can hide it
-export default function KnuckleModal(): JSX.Element {
+export default function KnuckleModal({
+  currentGameArea,
+}: {
+  currentGameArea: GameAreaController;
+}): JSX.Element {
   const knuckleGame = useInteractable('gameArea');
   const coveyTownController = useTownController();
+  const currentPlayerID = coveyTownController.ourPlayer.id;
+
+  const die = useGameAreaDie(currentGameArea);
 
   // coveyTownController.gameAreas.filter(area => {
-  //   if (area.player1?.id == coveyTownController.ourPlayer.id) {
+  //   if (area.player1?.id == currentPlayerID) {
   //     const currentGameArea = area;
-  //     const board1 = useGameAreaBoard1(area);
-  //     const board2 = useGameAreaBoard2(area);
-  //     const die = useGameAreaDie(area);
+  //     // const board1 = useGameAreaBoard1(area);
+  //     // const board2 = useGameAreaBoard2(area);
+  //     // const die = useGameAreaDie(area);
   //   } else if (area.player2?.id == coveyTownController.ourPlayer.id) {
   //     const currentGameArea = area;
-  //     const die = useGameAreaDie(area);
+  //     // const die = useGameAreaDie(area);
   //   }
   // });
+
+  const [rolledDie, setRolledDie] = useState(0);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -52,9 +62,11 @@ export default function KnuckleModal(): JSX.Element {
     }
   }, [knuckleGame]);
 
-  // useEffect(() => {
-  //   setDie()
-  // },[die]);
+  useEffect(() => {
+    if (currentGameArea.die != undefined) {
+      setRolledDie(currentGameArea.die);
+    }
+  }, [die]);
 
   const toast = useToast();
 
@@ -74,12 +86,19 @@ export default function KnuckleModal(): JSX.Element {
     setIsOpen(false);
   };
 
-  const [rolledDie, setRolledDie] = useState(0);
-
   const rollDie = () => {
-    // DieBoard.
-    const rand = Math.floor(Math.random() * 6) + 1;
-    setRolledDie(rand);
+    //call roll die function from the server then pull the value from the server and set it to rolledDie
+    //emitgameupdate takes in a game controller
+    // const gameController = coveyTownController.gameAreas[0];
+
+    coveyTownController.interactableEmitter.emit('rollDie', currentPlayerID);
+
+    // coveyTownController.emitGameUpdate(gameController);
+    //now we need to get the value from the server
+    // const die = coveyTownController.gameAreas[0].die;
+    // if (die != undefined) {
+    //   setRolledDie(die);
+    // }
   };
 
   return (

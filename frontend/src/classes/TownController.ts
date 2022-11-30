@@ -22,6 +22,7 @@ import ConversationAreaController from './ConversationAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
 import GameAreaController from './GameAreaController';
+import GameArea from '../components/Town/interactables/GameArea';
 
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
 
@@ -423,7 +424,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
     /**
      * When an interactable's state changes, push that update into the relevant controller, which is assumed
-     * to be either a Viewing Area or a Conversation Area, and which is assumed to already be represented by a
+     * to be either a Viewing Area or a Conversation Area or GameArea, and which is assumed to already be represented by a
      * ViewingAreaController or ConversationAreaController that this TownController has.
      *
      * If a conversation area transitions from empty to occupied (or occupied to empty), this handler will emit
@@ -638,6 +639,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    */
   public emitViewingAreaUpdate(viewingArea: ViewingAreaController) {
     this._socket.emit('interactableUpdate', viewingArea.viewingAreaModel());
+  }
+
+  /**
+   * Emit a knuckleGame area update to the townService
+   * @param knuckleArea The Knuckle Area Controller that is updated and should be emitted
+   *    with the event
+   */
+  public emitGameUpdate(game: GameAreaController) {
+    this._socket.emit('interactableUpdate', game.toGameArea());
   }
 
   /**

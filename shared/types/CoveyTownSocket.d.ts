@@ -82,6 +82,8 @@ export interface ViewingArea {
   elapsedTimeSec: number;
 }
 
+// TODO: add events for game area
+
 export interface ServerToClientEvents {
   playerMoved: (movedPlayer: Player) => void;
   playerDisconnect: (disconnectedPlayer: Player) => void;
@@ -97,4 +99,5 @@ export interface ClientToServerEvents {
   chatMessage: (message: ChatMessage) => void;
   playerMovement: (movementData: PlayerLocation) => void;
   interactableUpdate: (update: Interactable) => void;
+  rollDie: (playerID: string) => void;
 }

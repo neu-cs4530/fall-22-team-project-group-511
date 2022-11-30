@@ -45,9 +45,11 @@ export default function TownMap(): JSX.Element {
     };
   }, [coveyTownController]);
 
+  const gameArea = coveyTownController.gameAreas[0];
+
   return (
     <div id='app-container'>
-      <KnuckleModal />
+      <KnuckleModal currentGameArea={gameArea} />
       <NewConversationModal />
       <div id='map-container' />
       <div id='social-container'>

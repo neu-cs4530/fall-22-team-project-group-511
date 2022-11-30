@@ -141,6 +141,16 @@ export default class Town {
       this._updatePlayerLocation(newPlayer, movementData);
     });
 
+    socket.on('rollDie', (playerID: string) => {
+      const knuckleGameArea = this._interactables.find(each =>
+        each.occupantsByID.find(occupant => occupant === playerID),
+      );
+      if (knuckleGameArea) {
+        (knuckleGameArea as KnuckleGameArea).rollDie(playerID);
+        newPlayer.townEmitter.emit('interactableUpdate', knuckleGameArea);
+      }
+    });
+
     // Set up a listener to process updates to interactables.
     // Currently only knows how to process updates for ViewingArea's, and
     // ignores any other updates for any other kind of interactable.

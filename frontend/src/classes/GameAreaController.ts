@@ -408,11 +408,3 @@ export function useGameAreaIsItPlayerOneTurn(area: GameAreaController): boolean 
   }, [area]);
   return isItPlayerOneTurn;
 }
-
-/**
- * Call roll die from front end to backend
- */
-
-// set rollDie() {
-//   this.emit('dieChange', )
-// }

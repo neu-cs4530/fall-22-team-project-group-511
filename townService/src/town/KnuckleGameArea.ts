@@ -115,18 +115,19 @@ export default class KnuckleGameArea extends InteractableArea {
    *
    * Returns early if the game is not running
    */
-  public rollDie(player: Player): void {
+  public rollDie(playerID: string): number {
     if (!this.gameRunning || this.player1ID === undefined || this.player2ID === undefined) {
-      return;
+      return 0;
     }
-    if (this.isItPlayerOneTurn && player.id !== this.player1ID) {
-      return;
+    if (this.isItPlayerOneTurn && playerID !== this.player1ID) {
+      return 0;
     }
-    if (!this.isItPlayerOneTurn && player.id !== this.player2ID) {
-      return;
+    if (!this.isItPlayerOneTurn && playerID !== this.player2ID) {
+      return 0;
     }
     const roll: number = Math.floor(Math.random() * 6) + 1;
     this.dieRoll = roll;
+    return roll;
   }
 
   /**
